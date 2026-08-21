@@ -1,0 +1,20 @@
+<IfModule mod_headers.c>
+	# HTML：每次都跟伺服器重新確認有沒有新版，避免瀏覽器/CDN 快取到部署前的舊版
+	# （index.html / quiz.html 檔名固定不變，裡面引用的 JS/CSS 檔名卻會隨著每次
+	# build 改變，所以 HTML 本身絕對不能被長期快取，不然使用者會一直卡在舊版）
+	<FilesMatch "\.html$">
+		Header set Cache-Control "no-cache, must-revalidate"
+	</FilesMatch>
+
+	# JS/CSS：Vite build 出來的檔名內建內容雜湊值（例如 main-BgIBg_oj.js），
+	# 內容一變雜湊值就會跟著變，檔名不變 = 內容保證沒變，可以放心長期快取
+	<FilesMatch "\.(js|css)$">
+		Header set Cache-Control "public, max-age=31536000, immutable"
+	</FilesMatch>
+
+	# 影片/圖片：用固定檔名引用（不是 Vite 打包產生的雜湊檔名），之後換成正式
+	# 影片時檔名不會變，快取時間抓中等長度，避免使用者長期看不到更新內容
+	<FilesMatch "\.(mp4|png|jpg|jpeg|webp|gif|svg|ico|woff|woff2)$">
+		Header set Cache-Control "public, max-age=86400"
+	</FilesMatch>
+</IfModule>
