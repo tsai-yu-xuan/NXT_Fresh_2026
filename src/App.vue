@@ -27,7 +27,7 @@
 		<!-- navbar end -->
 
 		<!-- 前往測驗浮動按鈕 -->
-		<div class="to-quiz" :class="{ 'is-visible': showToQuiz }"><img :src="config.images.home.introBtn" draggable="false" alt="" /></div>
+		<div class="to-quiz" id="to-quiz" :class="{ 'is-visible': showToQuiz }"><img :src="config.images.home.introBtn" draggable="false" alt="" /></div>
 
 		<!-- 首頁 -->
 		<div class="page page-grid home" v-show="currentPage === 'home'">
@@ -41,7 +41,7 @@
 						<video ref="heroVideoMobile" :src="config.images.home.kvMobile" autoplay muted loop playsinline></video>
 					</div>
 					<div class="hero-content">
-						<a class="btn-cta" href="#apply" @click.prevent="scrollToApply()"> </a>
+						<a class="btn-cta" href="#apply" @click.prevent="scrollToApply()">立即申請</a>
 					</div>
 					<div class="hero-title">
 						<img :src="config.images.home.title" alt="職場生存模擬考｜2026 NXT Fresh 人才培育計畫｜" />

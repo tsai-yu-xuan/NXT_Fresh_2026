@@ -1353,6 +1353,10 @@ body {
 	}
 }
 
+.page.home .hero-content .btn-cta{
+	opacity: 0;
+}
+
 .page.home .btn-cta div {
 	padding: 0 1rem;
 	position: absolute;

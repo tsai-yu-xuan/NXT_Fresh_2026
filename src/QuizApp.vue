@@ -176,7 +176,7 @@
 								<div class="quiz-result-actions">
 									<button class="download-btn" @click="downloadImg(currentResult.img)">下載圖片</button>
 									<p>長按上方圖片可儲存結果，分享給朋友一起來看報告結果</p>
-									<a class="quiz-pill" href="./index.html?openExternalBrowser=1#apply">立即申請<span class="quiz-cta-arrow"></span></a>
+									<a class="quiz-pill" id="quiz-apply" href="./index.html?openExternalBrowser=1#apply">立即申請<span class="quiz-cta-arrow"></span></a>
 									<button type="button" class="quiz-pill" @click="shareResult">分享活動<span class="quiz-cta-arrow"></span></button>
 								</div>
 							</div>
