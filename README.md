@@ -1,11 +1,11 @@
-# NXT_Fresh_2026
+# 2026 NXT Fresh 人才培育計畫｜職場生存模擬考
 
-`nxt-workplace-exam-liff` 的 Vite 重製版：解決原專案在嚴格 CSP（`script-src` 不含 `unsafe-eval`）下，Vue 用 in-DOM template 執行期編譯會被擋掉、整個 app 掛載失敗的問題。
+財團法人溫世仁文教基金會「NXT Fresh 人才培育計畫」官網。Vue 3 + Vite 的雙頁式靜態網站：
 
-- Vue 模板改寫成 `.vue` SFC，交給 Vite 在 build time 編譯成 render function，瀏覽器不需要 `new Function()`／`eval`
-- 原本的 `vendor/` 手動放置的 bootstrap / axios / animate.css / vue，改成用 npm 套件管理
-- `js/*.js` 的邏輯搬進 `src/composables/`，`window.APP_CONFIG` 改成 `src/config.js` 的 ES module export
-- 圖片/影片/字型放在 `public/`，用根目錄絕對路徑（`/assets/...`、`/fonts/...`）引用，build 時原樣複製，不經過 Vite 的 hash 處理
+- `index.html` — 首頁，計畫介紹＋線上申請表單
+- `quiz.html` — 職場生存模擬考測驗頁，答題後產出分享用的人才類型結果
+
+模板改寫成 `.vue` SFC 交給 Vite 在 build time 編譯成 render function，避免原本 in-DOM template 執行期編譯（`new Function()` / `eval`）在嚴格 CSP（`script-src` 不含 `unsafe-eval`）環境下被擋掉、整個 app 掛載失敗。
 
 ## 開發
 
@@ -22,18 +22,21 @@ npm run dev
 npm run build
 ```
 
-輸出在 `dist/`，部署時把 `dist/` 整個資料夾內容上傳到主機即可（跟原專案一樣是純靜態站，只是多了一道 build 手續）。`npm run preview` 可以在本機先預覽 build 結果。
+輸出在 `dist/`，部署時把 `dist/` 整個資料夾內容上傳到主機即可（純靜態站，只是多了一道 build 手續）。`npm run preview` 可以在本機先預覽 build 結果。
 
 ## 目錄結構
 
 - `index.html` / `quiz.html` — 兩個頁面各自的進入 HTML（Vite multi-page 設定見 `vite.config.js`）
-- `src/App.vue` / `src/QuizApp.vue` — 對應兩個頁面的模板 + 組裝邏輯
-- `src/composables/` — `useApply.js`（首頁申請表單）、`useQuiz.js`（測驗流程）、`useGA.js`（GA 固定模組，維持全域可呼叫）
-- `src/config.js` — 所有可能因專案而變的值（API 網址、圖片路徑、測驗題目與結果文案）
-- `src/styles/all.css` — 原專案的樣式表，資源路徑已改成根目錄絕對路徑
+- `src/main.js` / `src/main-quiz.js` — 對應兩個頁面的進入點，載入 bootstrap / animate.css / `all.css` 後掛載對應的 App
+- `src/App.vue` — 首頁：主視覺、計畫簡介、申請表單（生日選擇器、身分下拉選單、多選來源）、依日期判斷目前是否開放申請、跳轉測驗頁的浮動按鈕
+- `src/QuizApp.vue` — 測驗頁：職場生存模擬考流程（intro 影片 → 逐題影片/文字作答 → 結果頁）
+- `src/composables/useGA.js` — GA 事件推送的固定模組，跨專案共用，不需要重寫
+- `src/config.js` — 所有可能因專案而變的值集中管理：申請表單 API 網址、圖片/影片路徑、測驗題目與結果文案
+- `src/styles/all.css` — 樣式表，圖片等資源路徑已改成根目錄絕對路徑
 - `public/assets/`、`public/fonts/` — 靜態資源，build 時原樣複製到 `dist/`
+- `public/.htaccess` — 部署後的快取策略：HTML 不快取、有雜湊檔名的 JS/CSS 長期快取、圖片影片中等長度快取
 
-## 跟原專案的已知差異
+## 專案相關設定
 
-- 原 `all.css` 裡 `.about-bg` 跟 `.hero .hero-bg-pc`（`kv-bg.png`）有兩處網址少了 `https://lineevent` 前綴（`url('.s3.ap-northeast-1.amazonaws.com/...')`），本來就是壞的、圖片顯示不出來——這次一併修正指向本地檔案。
-- `quiz.html` 點 logo 原本沒有綁定 `goHome`（點了沒反應），這裡補上導回首頁的行為。
+- **申請開放時間**：寫死在 `src/App.vue` 的 `checkTime()`，依目前時間判斷秋季班／春季班／空窗期／已結束／尚未開始，對應決定首頁顯示申請表單還是提前通知按鈕。每季開放時間異動時記得更新這裡的日期。
+- **追蹤標籤**：`quiz.html` 掛 GTM（`GTM-P9KTSHT4`）；申請表單送出時會呼叫 LINE Tag（`window._lt`）與 LINE Point Ads 轉換事件；測驗結果頁的曝光事件透過 `useGA.js` 的 `pushGA()` 推送到 `dataLayer`。這幾處都是外部行銷工具的串接點，改動申請/測驗流程時要留意別漏了觸發時機。
