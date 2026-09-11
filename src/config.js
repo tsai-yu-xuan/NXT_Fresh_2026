@@ -6,7 +6,7 @@
 export default {
 	// API 配置（依專案 API 文件填入）
 	api: {
-		applyForm: 'https://nxtfresh26.saylingwen.org/AI2026_form/api/post/submit',
+		applyForm: 'https://nxtfresh26.saylingwen.org/AI2026_form/api/post/submit'
 	},
 
 	// 圖片資源
@@ -108,17 +108,20 @@ export default {
 			A: {
 				img: 'assets/images/quiz/result-A.jpg',
 				name: 'A型人才',
-				description: '（佔位文案，之後換成正式內容）'
+				image_id: 'result_type_a',
+				image_name: '天生領袖大將'
 			},
 			B: {
 				img: 'assets/images/quiz/result-B.jpg',
 				name: 'B型人才',
-				description: '（佔位文案，之後換成正式內容）'
+				image_id: 'result_type_b',
+				image_name: '團隊中的穩定齒輪'
 			},
 			C: {
 				img: 'assets/images/quiz/result-C.jpg',
 				name: 'C型人才',
-				description: '（佔位文案，之後換成正式內容）'
+				image_id: 'result_type_c',
+				image_name: '職場熱血新星'
 			}
 		}
 	}

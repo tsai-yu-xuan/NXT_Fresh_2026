@@ -725,6 +725,26 @@ const submitApply = async () => {
 				} catch (error) {
 					console.error('LINE Tag 送出失敗:', error)
 				}
+				try {
+					window.freecoins_cvq = [
+						{
+							app: 'FREECOINS_51392',
+							domain: '.horyuken.com',
+							cv: [
+								{
+									action: 'REGISTRATION',
+									order: `${payload.email}_${Date.now()}`
+								}
+							]
+						}
+					]
+					const freecoinsScript = document.createElement('script')
+					freecoinsScript.src = 'https://point-ads.line-apps.com/lfc5.js'
+					freecoinsScript.async = true
+					document.head.appendChild(freecoinsScript)
+				} catch (error) {
+					console.error('LINE Point Ads CV Tag 送出失敗:', error)
+				}
 				// 清除表單
 				resetForm()
 			})

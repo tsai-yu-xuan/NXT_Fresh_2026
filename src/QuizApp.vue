@@ -25,13 +25,7 @@
 				<div class="black" :class="{ 'is-hidden': !introHintVisible }" v-show="phase === 'intro' && !introVideoEnded"></div>
 				<div class="quiz-body-bg">
 					<div class="quiz-bg-video-frame" ref="videoFrameEl">
-						<img
-							v-if="phase !== 'result' && bgImageSrc"
-							class="quiz-bg-video-media"
-							:style="videoFrameSizeStyle"
-							:src="bgImageSrc"
-							alt=""
-						/>
+						<img v-if="phase !== 'result' && bgImageSrc" class="quiz-bg-video-media" :style="videoFrameSizeStyle" :src="bgImageSrc" alt="" />
 						<video
 							ref="videoElA"
 							class="quiz-bg-video-media video-slot"
@@ -200,7 +194,9 @@
 								<button type="button" class="quiz-share-icon" @click="openShareLink('facebook')">
 									<img :src="config.images.quiz.facebook" alt="Facebook" />Facebook
 								</button>
-								<button type="button" class="quiz-share-icon" @click="openShareLink('instagram')"><img :src="config.images.quiz.instagram" alt="Instagram" />Instagram</button>
+								<button type="button" class="quiz-share-icon" @click="openShareLink('instagram')">
+									<img :src="config.images.quiz.instagram" alt="Instagram" />Instagram
+								</button>
 								<button type="button" class="quiz-share-icon" @click="openShareLink('line')"><img :src="config.images.quiz.line" alt="LINE" />Line</button>
 								<button type="button" class="quiz-share-icon" @click="openShareLink('threads')">
 									<img :src="config.images.quiz.threads" alt="Threads" />Threads
@@ -219,19 +215,18 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 import config from './config.js'
+import { pushGA } from './composables/useGA.js'
 
-const SELECT_DELAY = 600 
-const SUBMIT_LOADING_DURATION = 1000 
+const SELECT_DELAY = 600
+const SUBMIT_LOADING_DURATION = 1000
 const INTRO_HINT_DURATION = 2000
 
 const questions = config.quiz.questions
 const results = config.quiz.results
 
-
 const supportsWebm = document.createElement('video').canPlayType('video/webm; codecs="vp9,opus"') !== ''
 const resolveVideoSrc = (src) => (supportsWebm || !src.endsWith('.webm') ? src : src.slice(0, -'.webm'.length) + '.mp4')
 const resolvedLeadInVideo = resolveVideoSrc(config.quiz.leadInVideo)
-
 
 const loading = ref({
 	state: true,
@@ -248,7 +243,7 @@ const resultType = ref('')
 const totalQuestions = questions.length
 const currentQuestion = computed(() => questions[currentQuestionIndex.value])
 const currentResult = computed(() => results[resultType.value] || {})
-const selectedValue = ref('') 
+const selectedValue = ref('')
 
 const introHintVisible = ref(true)
 
@@ -266,9 +261,7 @@ const activeIsA = ref(true)
 const videoFrameEl = ref(null)
 const videoFrameSize = ref({ width: 0, height: 0 })
 const videoFrameSizeStyle = computed(() =>
-	videoFrameSize.value.width && videoFrameSize.value.height
-		? { width: videoFrameSize.value.width + 'px', height: videoFrameSize.value.height + 'px' }
-		: {}
+	videoFrameSize.value.width && videoFrameSize.value.height ? { width: videoFrameSize.value.width + 'px', height: videoFrameSize.value.height + 'px' } : {}
 )
 let videoFrameResizeObserver = null
 
@@ -358,11 +351,10 @@ const calcResult = () => {
 	return best
 }
 
-
 const submitQuiz = async () => {
 	resultType.value = calcResult()
 
-	activateStandbyVideo() 
+	activateStandbyVideo()
 	phase.value = 'loading'
 
 	const minDelay = new Promise((resolve) => setTimeout(resolve, SUBMIT_LOADING_DURATION))
@@ -382,7 +374,7 @@ const selectOption = (value) => {
 
 		if (currentQuestionIndex.value < totalQuestions - 1) {
 			currentQuestionIndex.value++
-			activateStandbyVideo() 
+			activateStandbyVideo()
 			phase.value = 'video'
 		} else {
 			submitQuiz()
@@ -397,6 +389,10 @@ watch(phase, (newPhase) => {
 		warmUpStandby(nextSrc)
 	} else if (newPhase === 'result') {
 		warmUpStandby(questions[0].video)
+		pushGA({
+			image_id: currentResult.value.image_id,
+			image_name: currentResult.value.image_name
+		})
 	}
 })
 
@@ -508,7 +504,7 @@ const goHome = () => {
 	window.location.href = './index.html?openExternalBrowser=1'
 }
 
-const PRELOAD_TIMEOUT = 20000 
+const PRELOAD_TIMEOUT = 20000
 
 const preloadImage = (src) =>
 	new Promise((resolve) => {
@@ -561,15 +557,12 @@ const warmUpVideo = (el) => {
 	el.play()
 		.then(() => {
 			el.pause()
-			el.currentTime = 0 
+			el.currentTime = 0
 		})
-		.catch(() => {
-
-		})
+		.catch(() => {})
 
 	return ready
 }
-
 
 const preloadIntroVideo = () => withTimeout(warmUpVideo(leadInVideoEl.value), PRELOAD_TIMEOUT)
 
@@ -578,7 +571,6 @@ const preloadCriticalImages = () => withTimeout(Promise.all(criticalImages.map(p
 
 const assetsReady = ref(false)
 const preloadRestAssets = () => {
-
 	const preloadDone = Promise.all([...restAssetImages.map(preloadImage), ...restAssetVideos.map(preloadVideo)])
 	withTimeout(preloadDone, PRELOAD_TIMEOUT).then((results) => {
 		assetsReady.value = true
@@ -589,7 +581,6 @@ const preloadRestAssets = () => {
 		}
 
 		const failed = results.filter((r) => !r.ok)
-	
 	})
 }
 
@@ -620,7 +611,6 @@ onMounted(async () => {
 onUnmounted(() => {
 	videoFrameResizeObserver?.disconnect()
 })
-
 
 const playIntroVideoWithRetry = () => {
 	const el = leadInVideoEl.value
