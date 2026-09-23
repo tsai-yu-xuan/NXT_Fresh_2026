@@ -668,6 +668,19 @@ const resetForm = () => {
 	identityOther.value = ''
 }
 
+// 依 UTF-8 位元組數截斷字串，避免切到多位元組字元中間（English/數字 1 byte，全形字元 2~3 bytes）
+const truncateByBytes = (str, maxBytes) => {
+	const encoder = new TextEncoder()
+	let bytes = 0
+	let result = ''
+	for (const char of str) {
+		bytes += encoder.encode(char).length
+		if (bytes > maxBytes) break
+		result += char
+	}
+	return result
+}
+
 const submitApply = async () => {
 	if (holdBtn.value) return
 
@@ -694,7 +707,7 @@ const submitApply = async () => {
 				fromData.identity = `${matched.value}-${matched.desc}`
 			}
 		}
-		// sources 為多選陣列，送出時轉成逗號分隔的純文字，例如「網路廣告,學校公告」
+
 		fromData.sources = form.value.sources.join(',')
 		console.log('表單資料：', fromData)
 
@@ -710,41 +723,47 @@ const submitApply = async () => {
 		const res = await axios.post(config.api.applyForm, payload)
 
 		if (res.data.status == '200') {
+			try {
+				window._lt(
+					'send',
+					'cv',
+					{
+						type: 'Purchase',
+						value: 1,
+						currency: 'TWD'
+					},
+					['252c7ad0-6688-49a3-a2b0-6d43fa245ba4']
+				)
+			} catch (error) {
+				console.error('LINE Tag 送出失敗:', error)
+			}
+			try {
+				window.freecoins_cvq = [
+					{
+						app: 'FREECOINS_51808',
+						domain: '.saylingwen.org',
+						cv: [
+							{
+								action: 'REGISTRATION',
+								order: truncateByBytes(payload.email.split('@')[0], 128),
+								item: 'submit',
+								t_price: "1",
+								quantity: "1",
+								memo: payload.name
+							}
+						]
+					}
+				]
+				const freecoinsScript = document.createElement('script')
+				freecoinsScript.src = 'https://point-ads.line-apps.com/lfc5.js'
+				freecoinsScript.async = true
+				freecoinsScript.nonce = 'NXTFresh'
+				document.head.appendChild(freecoinsScript)
+			} catch (error) {
+				console.error('LINE Point Ads CV Tag 送出失敗:', error)
+			}
+
 			showAlert('申請成功<br>感謝您的申請，並請留意信件！', '', () => {
-				try {
-					window._lt(
-						'send',
-						'cv',
-						{
-							type: 'Purchase',
-							value: 1,
-							currency: 'TWD'
-						},
-						['252c7ad0-6688-49a3-a2b0-6d43fa245ba4']
-					)
-				} catch (error) {
-					console.error('LINE Tag 送出失敗:', error)
-				}
-				try {
-					window.freecoins_cvq = [
-						{
-							app: 'FREECOINS_51392',
-							domain: '.horyuken.com',
-							cv: [
-								{
-									action: 'REGISTRATION',
-									order: `${payload.email}_${Date.now()}`
-								}
-							]
-						}
-					]
-					const freecoinsScript = document.createElement('script')
-					freecoinsScript.src = 'https://point-ads.line-apps.com/lfc5.js'
-					freecoinsScript.async = true
-					document.head.appendChild(freecoinsScript)
-				} catch (error) {
-					console.error('LINE Point Ads CV Tag 送出失敗:', error)
-				}
 				// 清除表單
 				resetForm()
 			})

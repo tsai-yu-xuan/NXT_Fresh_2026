@@ -194,9 +194,7 @@
 								<button type="button" class="quiz-share-icon" @click="openShareLink('facebook')">
 									<img :src="config.images.quiz.facebook" alt="Facebook" />Facebook
 								</button>
-								<button type="button" class="quiz-share-icon" @click="openShareLink('instagram')">
-									<img :src="config.images.quiz.instagram" alt="Instagram" />Instagram
-								</button>
+								<button type="button" class="quiz-share-icon" @click="openShareLink('instagram')"><img :src="config.images.quiz.instagram" alt="Instagram" />Instagram</button>
 								<button type="button" class="quiz-share-icon" @click="openShareLink('line')"><img :src="config.images.quiz.line" alt="LINE" />Line</button>
 								<button type="button" class="quiz-share-icon" @click="openShareLink('threads')">
 									<img :src="config.images.quiz.threads" alt="Threads" />Threads
@@ -261,7 +259,9 @@ const activeIsA = ref(true)
 const videoFrameEl = ref(null)
 const videoFrameSize = ref({ width: 0, height: 0 })
 const videoFrameSizeStyle = computed(() =>
-	videoFrameSize.value.width && videoFrameSize.value.height ? { width: videoFrameSize.value.width + 'px', height: videoFrameSize.value.height + 'px' } : {}
+	videoFrameSize.value.width && videoFrameSize.value.height
+		? { width: videoFrameSize.value.width + 'px', height: videoFrameSize.value.height + 'px' }
+		: {}
 )
 let videoFrameResizeObserver = null
 
