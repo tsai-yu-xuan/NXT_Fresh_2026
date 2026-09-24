@@ -134,7 +134,8 @@
 						<img class="about-icon" :src="config.images.home.iconSchedule" alt="" />
 						<p class="about-title">申請時間</p>
 						<img class="about-divider" :src="config.images.home.divider" alt="" />
-						<p class="about-desc">2026/8/31(一)～2026/9/30(三)</p>
+						<p class="about-desc"   v-show="activityStatus === 'fallSeason' ||activityStatus === 'notStarted'">2026/8/31(一)～2026/9/30(三)</p>
+						<p class="about-desc"   v-show="activityStatus === 'springSeason' ||activityStatus === 'breakPeriod' ||activityStatus === 'ended'">2026/12/1(二)～2027/1/20(三)</p>
 					</div>
 				</div>
 
@@ -235,8 +236,13 @@
 						>
 					</label>
 
-					<p class="apply-terms">
+					<p class="apply-terms" v-show="activityStatus === 'fallSeason' ||activityStatus === 'notStarted'" >
 						1. 計畫申請期間：即日起至2026/9/30(三)23:59 截止。2. 此申請表僅需花約1分鐘完成，主要確認申請者是否符合計畫申請資格。<br />
+						3. 請務必留下完整且正確資料，以利本會進行審核，並請勿重複填寫申請表。4. 如有任何計畫或申請相關問題，歡迎Email至
+						<a href="mailto:nxtfresh@saylingwen.org">nxtfresh@saylingwen.org</a> 詢問。
+					</p>
+					<p class="apply-terms" v-show="activityStatus === 'springSeason' ||activityStatus === 'breakPeriod' ||activityStatus === 'ended'" >
+						1. 計畫申請期間：即日起至2027/1/20(三)23:59 截止。2. 此申請表僅需花約1分鐘完成，主要確認申請者是否符合計畫申請資格。<br />
 						3. 請務必留下完整且正確資料，以利本會進行審核，並請勿重複填寫申請表。4. 如有任何計畫或申請相關問題，歡迎Email至
 						<a href="mailto:nxtfresh@saylingwen.org">nxtfresh@saylingwen.org</a> 詢問。
 					</p>
@@ -274,7 +280,7 @@
 							<path d="M218 8C220.209 8 222 6.20914 222 4C222 1.79086 220.209 0 218 0V4V8ZM0 4V8H218V4V0H0V4Z" fill="#F6AB00" />
 						</svg>
 					</div>
-					<h2>將於2026/12/21(一)開放申請春季班</h2>
+					<h2>將於2026/12/1(二)開放申請春季班</h2>
 					<p>如有任何計畫或申請相關問題，歡迎Email至 <a href="mailto:nxtfresh@saylingwen.org">nxtfresh@saylingwen.org</a> 詢問。</p>
 				</div>
 				<button class="btn-pill" @click="handleGoogleCalendar('springSeason')" :disabled="holdBtn">開啟申請提醒</button>
@@ -390,8 +396,8 @@ const handleGoogleCalendar = (season) => {
 			'2026年NXT Fresh人才培育計畫已開放申請，立即點擊下方連結，踏出第一步，讓你職涯不繞路！\n免費申請 https://bigcc.cc/YGpa63'
 		)
 	} else {
-		startDate.value = '20261221'
-		endDate.value = '20261222'
+		startDate.value = '20261201'
+		endDate.value = '20261202'
 		details.value = encodeURIComponent(
 			'2026年NXT Fresh人才培育計畫已開放申請，立即點擊下方連結，踏出第一步，讓你職涯不繞路！\n免費申請 https://bigcc.cc/BWiox8'
 		)
@@ -515,10 +521,10 @@ const checkTime = () => {
 	const nowTime = new Date()
 	// 	開放申請時間
 	// 秋季班申請階段2026/8/31-2026/9/30
-	// 春季班申請階段2026/12/21-2027/1/20
+	// 春季班申請階段2026/12/1-2027/1/20
 	const autumnStartTime = new Date('2026/08/31 00:00:00') // 秋季班
 	const autumnEndTime = new Date('2026/09/30 23:59:59') // 秋季班
-	const springStartTime = new Date('2026/12/21 00:00:00') // 春季班
+	const springStartTime = new Date('2026/12/01 00:00:00') // 春季班
 	const springEndTime = new Date('2027/01/20 23:59:59') // 春季班
 
 	if (nowTime < autumnStartTime) {
