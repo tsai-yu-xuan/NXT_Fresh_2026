@@ -7,6 +7,20 @@
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>2026 NXT Fresh 人才培育計畫｜職場生存模擬考</title>
 
+    <!-- LINE Point Ads 廣告網址若設成 ...#apply，LINE 會把 &freecoins=xxx 接在 hash 後面，
+         但 cv5.js 只讀 location.search，所以先把 freecoins 從 hash 搬回 query（不重新載入頁面） -->
+    <script nonce="NXTFresh">
+        (function () {
+            var match = window.location.hash.match(/[#&]freecoins=([^&]*)/);
+            if (!match || /[?&]freecoins=/.test(window.location.search)) return;
+
+            var hash = window.location.hash.replace(/&?freecoins=[^&]*/, '').replace(/^#&/, '#');
+            if (hash === '#') hash = '';
+            var search = window.location.search + (window.location.search ? '&' : '?') + 'freecoins=' + match[1];
+            history.replaceState(null, '', window.location.pathname + search + hash);
+        })();
+    </script>
+
     <!-- 在 LINE 內建瀏覽器打開時，強制跳出到手機的外部瀏覽器（放在所有追蹤 script 之前，避免跳轉前先重複發送一次 pv） -->
     <script nonce="NXTFresh">
         (function () {
