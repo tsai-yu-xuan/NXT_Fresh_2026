@@ -1346,11 +1346,16 @@ body {
 	gap: 0.4rem;
 	position: relative;
 }
+
+
 @media screen and (max-width: 767px) {
 	.page.home .btn-cta {
 		position: static;
 		width: 60%;
 		height: 10%;
+	}
+	.page.home .btn-cta.break-period{
+	width: 65%;
 	}
 }
 

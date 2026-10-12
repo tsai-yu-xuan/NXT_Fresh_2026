@@ -29,7 +29,9 @@ export default {
 			introBtn: 'assets/images/home/intro-btn.png',
 			iconChevronDown: 'assets/images/home/icon-chevron-down.svg',
 			kv: 'assets/images/home/kv.mp4',
+			kvbreakPeriod:'assets/images/home/kvbreakPeriod.webm',
 			kvMobile: 'assets/images/home/kv_M.mp4',
+			kvbreakPeriodMobile: 'assets/images/home/kvbreakPeriod_M.webm',
 
 			iconAudience: 'assets/images/home/about-icon-audience.png',
 			iconQualify: 'assets/images/home/about-icon-qualify.png',

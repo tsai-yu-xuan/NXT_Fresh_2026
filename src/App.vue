@@ -21,7 +21,8 @@
 				<a class="navbar-brand" @click="goHome">
 					<img :src="config.images.logo" alt="logo" />
 				</a>
-				<a class="btn-apply-nav" href="#apply" @click.prevent="scrollToApply()">立即申請</a>
+				<a v-if="activityStatus === 'breakPeriod'" class="btn-apply-nav" href="#apply" @click.prevent="handleGoogleCalendar('springSeason')">開啟申請提醒</a>
+				<a v-else class="btn-apply-nav" href="#apply" @click.prevent="scrollToApply()">立即申請</a>
 			</div>
 		</header>
 		<!-- navbar end -->
@@ -34,14 +35,23 @@
 			<div class="home-top">
 				<!-- 主視覺區 -->
 				<section class="hero">
-					<div class="hero-bg-pc">
+					<div class="hero-bg-pc" v-if="activityStatus === 'breakPeriod'">
+						<video ref="heroVideoPc" :src="config.images.home.kvbreakPeriod" autoplay muted loop playsinline></video>
+					</div>
+					<div class="hero-bg-pc" v-else>
 						<video ref="heroVideoPc" :src="config.images.home.kv" autoplay muted loop playsinline></video>
 					</div>
-					<div class="hero-bg-mobile">
+					<div class="hero-bg-mobile" v-if="activityStatus === 'breakPeriod'">
+						<video ref="heroVideoMobile" :src="config.images.home.kvbreakPeriodMobile" autoplay muted loop playsinline></video>
+					</div>
+					<div class="hero-bg-mobile" v-else>
 						<video ref="heroVideoMobile" :src="config.images.home.kvMobile" autoplay muted loop playsinline></video>
 					</div>
 					<div class="hero-content">
-						<a class="btn-cta" href="#apply" @click.prevent="scrollToApply()">立即申請</a>
+						<button v-if="activityStatus === 'breakPeriod'" class="btn-cta break-period" href="#apply" @click.prevent="handleGoogleCalendar('springSeason')">
+							立即申請
+						</button>
+						<a v-else class="btn-cta" href="#apply" @click.prevent="scrollToApply()">立即申請</a>
 					</div>
 					<div class="hero-title">
 						<img :src="config.images.home.title" alt="職場生存模擬考｜2026 NXT Fresh 人才培育計畫｜" />
@@ -134,8 +144,10 @@
 						<img class="about-icon" :src="config.images.home.iconSchedule" alt="" />
 						<p class="about-title">申請時間</p>
 						<img class="about-divider" :src="config.images.home.divider" alt="" />
-						<p class="about-desc"   v-show="activityStatus === 'fallSeason' ||activityStatus === 'notStarted'">2026/8/31(一)～2026/9/30(三)</p>
-						<p class="about-desc"   v-show="activityStatus === 'springSeason' ||activityStatus === 'breakPeriod' ||activityStatus === 'ended'">2026/12/1(二)～2027/1/20(三)</p>
+						<p class="about-desc" v-show="activityStatus === 'fallSeason' || activityStatus === 'notStarted'">2026/8/31(一)～2026/9/30(三)</p>
+						<p class="about-desc" v-show="activityStatus === 'springSeason' || activityStatus === 'breakPeriod' || activityStatus === 'ended'">
+							2026/12/1(二)～2027/1/20(三)
+						</p>
 					</div>
 				</div>
 
@@ -236,12 +248,12 @@
 						>
 					</label>
 
-					<p class="apply-terms" v-show="activityStatus === 'fallSeason' ||activityStatus === 'notStarted'" >
+					<p class="apply-terms" v-show="activityStatus === 'fallSeason' || activityStatus === 'notStarted'">
 						1. 計畫申請期間：即日起至2026/9/30(三)23:59 截止。2. 此申請表僅需花約1分鐘完成，主要確認申請者是否符合計畫申請資格。<br />
 						3. 請務必留下完整且正確資料，以利本會進行審核，並請勿重複填寫申請表。4. 如有任何計畫或申請相關問題，歡迎Email至
 						<a href="mailto:nxtfresh@saylingwen.org">nxtfresh@saylingwen.org</a> 詢問。
 					</p>
-					<p class="apply-terms" v-show="activityStatus === 'springSeason' ||activityStatus === 'breakPeriod' ||activityStatus === 'ended'" >
+					<p class="apply-terms" v-show="activityStatus === 'springSeason' || activityStatus === 'breakPeriod' || activityStatus === 'ended'">
 						1. 計畫申請期間：即日起至2027/1/20(三)23:59 截止。2. 此申請表僅需花約1分鐘完成，主要確認申請者是否符合計畫申請資格。<br />
 						3. 請務必留下完整且正確資料，以利本會進行審核，並請勿重複填寫申請表。4. 如有任何計畫或申請相關問題，歡迎Email至
 						<a href="mailto:nxtfresh@saylingwen.org">nxtfresh@saylingwen.org</a> 詢問。
@@ -458,7 +470,6 @@ onMounted(() => {
 		)
 		introObserver.observe(introEl)
 	}
-
 
 	const toQuizEl = document.querySelector('.to-quiz')
 	if (toQuizEl) {
@@ -753,8 +764,8 @@ const submitApply = async () => {
 								action: 'REGISTRATION',
 								order: truncateByBytes(payload.email.split('@')[0], 128),
 								item: 'submit',
-								t_price: "1",
-								quantity: "1",
+								t_price: '1',
+								quantity: '1',
 								memo: payload.name
 							}
 						]
