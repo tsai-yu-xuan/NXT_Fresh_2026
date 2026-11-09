@@ -27,16 +27,16 @@ npm run build
 ## 目錄結構
 
 - `index.html` / `quiz.html` — 兩個頁面各自的進入 HTML（Vite multi-page 設定見 `vite.config.js`）
-- `src/main.js` / `src/main-quiz.js` — 對應兩個頁面的進入點，載入 bootstrap / animate.css / `all.css` 後掛載對應的 App
-- `src/App.vue` — 首頁：主視覺、計畫簡介、申請表單（生日選擇器、身分下拉選單、多選來源）、依日期判斷目前是否開放申請、跳轉測驗頁的浮動按鈕
+- `src/main.js` / `src/main-quiz.js` — 對應兩個頁面的進入點；首頁樣式寫在 `App.vue` 內，測驗頁載入 bootstrap / animate.css / `all.css`
+- `src/App.vue` — 首頁（v2 改版，設計稿在 `v2-design/index.html`）：主視覺（WebGL 背景、問句泡泡）、計畫簡介、學長姐心得輪播、計畫資訊、申請表單、測驗浮動按鈕；動態使用 GSAP（ScrollTrigger / Draggable / Inertia），樣式寫在檔案最下方的 `<style>`
 - `src/QuizApp.vue` — 測驗頁：職場生存模擬考流程（intro 影片 → 逐題影片/文字作答 → 結果頁）
 - `src/composables/useGA.js` — GA 事件推送的固定模組，跨專案共用，不需要重寫
 - `src/config.js` — 所有可能因專案而變的值集中管理：申請表單 API 網址、圖片/影片路徑、測驗題目與結果文案
-- `src/styles/all.css` — 樣式表，圖片等資源路徑已改成根目錄絕對路徑
+- `src/styles/all.css` — 測驗頁樣式表，圖片等資源路徑已改成根目錄絕對路徑
 - `public/assets/`、`public/fonts/` — 靜態資源，build 時原樣複製到 `dist/`
 - `public/.htaccess` — 部署後的快取策略：HTML 不快取、有雜湊檔名的 JS/CSS 長期快取、圖片影片中等長度快取
 
 ## 專案相關設定
 
-- **申請開放時間**：寫死在 `src/App.vue` 的 `checkTime()`，依目前時間判斷秋季班／春季班／空窗期／已結束／尚未開始，對應決定首頁顯示申請表單還是提前通知按鈕。每季開放時間異動時記得更新這裡的日期。
+- **申請開放時間**：寫在 `src/App.vue` 的 `schedule`（openAt / closeAt 與顯示用文字），由 `checkTime()` 判斷首頁狀態：`before` 開放申請前（顯示提醒按鈕）／`open` 開放申請中（顯示表單）／`ended` 申請截止後。給企劃看各狀態可在網址加 `?state=before`、`?state=open`、`?state=ended`。
 - **追蹤標籤**：`quiz.html` 掛 GTM（`GTM-P9KTSHT4`）；申請表單送出時會呼叫 LINE Tag（`window._lt`）與 LINE Point Ads 轉換事件；測驗結果頁的曝光事件透過 `useGA.js` 的 `pushGA()` 推送到 `dataLayer`。這幾處都是外部行銷工具的串接點，改動申請/測驗流程時要留意別漏了觸發時機。

@@ -13,30 +13,35 @@ export default {
 	images: {
 		logo: 'assets/images/logo.png',
 
+		// 首頁 v2 改版素材（public/assets/images/v2）
 		home: {
-			title: 'assets/images/home/title.png',
-			ctaBg: 'assets/images/home/btn-apply-bg.png',
-			ctaArrow: 'assets/images/home/icon-arrow.png',
-			finger: 'assets/images/home/finger.png',
-			icon1: 'assets/images/home/icon-1.png',
-			icon2: 'assets/images/home/icon-2.png',
-			icon3: 'assets/images/home/icon-3.png',
-			icon4: 'assets/images/home/icon-4.png',
-			icon5: 'assets/images/home/icon-5.png',
-			dot: 'assets/images/home/dot.svg',
-			introBrandMark: 'assets/images/home/intro-brand-mark.png',
-			sub: 'assets/images/home/sub.png',
-			introBtn: 'assets/images/home/intro-btn.png',
-			iconChevronDown: 'assets/images/home/icon-chevron-down.svg',
-			kv: 'assets/images/home/kv.mp4',
-			kvbreakPeriod:'assets/images/home/kvbreakPeriod.webm',
-			kvMobile: 'assets/images/home/kv_M.mp4',
-			kvbreakPeriodMobile: 'assets/images/home/kvbreakPeriod_M.webm',
-
-			iconAudience: 'assets/images/home/about-icon-audience.png',
-			iconQualify: 'assets/images/home/about-icon-qualify.png',
-			iconSchedule: 'assets/images/home/about-icon-schedule.png',
-			divider: 'assets/images/home/divider.svg'
+			brand: 'assets/images/v2/logo.svg',
+			kvTitleMask: 'assets/images/v2/kv-title-mask.svg',
+			kvPerson: 'assets/images/v2/kv-person.webp',
+			kvPersonMobile: 'assets/images/v2/kv-person-m.webp',
+			ctaBar: 'assets/images/v2/cta-bar.webp',
+			ctaArrow: 'assets/images/v2/cta-arrow.webp',
+			ctaHand: 'assets/images/v2/cta-hand.webp',
+			quizFloat: 'assets/images/v2/quiz-float.webp',
+			bubbles: {
+				ai: { body: 'assets/images/v2/bubble-ai.webp', label: 'assets/images/v2/label-ai.webp' },
+				career: {
+					body: 'assets/images/v2/bubble-career.webp',
+					label: 'assets/images/v2/label-career.webp',
+					icon: 'assets/images/v2/bubble-career-icon.webp'
+				},
+				practice: {
+					body: 'assets/images/v2/bubble-practice.webp',
+					label: 'assets/images/v2/label-practice.webp',
+					icon: 'assets/images/v2/bubble-practice-icon.webp'
+				},
+				hire: {
+					body: 'assets/images/v2/bubble-hire.webp',
+					label: 'assets/images/v2/label-hire.webp',
+					icon: 'assets/images/v2/bubble-hire-icon.webp'
+				}
+			},
+			student: (name) => `assets/images/v2/students/${name}.webp`
 		},
 
 		quiz: {
