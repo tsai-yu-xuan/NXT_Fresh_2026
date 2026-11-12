@@ -17,7 +17,9 @@
 					<a class="navbar-brand" @click="goHome">
 						<img :src="config.images.logo" alt="logo" />
 					</a>
-					<a class="btn-apply-nav" href="./index.html?openExternalBrowser=1#apply">立即申請</a>
+					<!-- 申請截止：開新分頁去計畫官網；開放前 / 開放中：回首頁申請區（首頁會依狀態顯示提醒或表單） -->
+					<a v-if="activityStatus === 'ended'" class="btn-apply-nav" :href="learnMoreUrl" target="_blank" rel="noopener">{{ navCtaText }}</a>
+					<a v-else class="btn-apply-nav" :href="applyPageUrl">{{ navCtaText }}</a>
 				</div>
 			</header>
 			<!-- navbar end -->
@@ -170,7 +172,7 @@
 								<div class="quiz-result-actions">
 									<button class="download-btn" @click="downloadImg(currentResult.img)">下載圖片</button>
 									<p>長按上方圖片可儲存結果，分享給朋友一起來看報告結果</p>
-									<a class="quiz-pill" id="quiz-apply" href="./index.html?openExternalBrowser=1#apply">立即申請<span class="quiz-cta-arrow"></span></a>
+									<a class="quiz-pill" id="quiz-apply" :href="applyPageUrl">立即申請<span class="quiz-cta-arrow"></span></a>
 									<button type="button" class="quiz-pill" @click="shareResult">分享活動<span class="quiz-cta-arrow"></span></button>
 								</div>
 							</div>
@@ -214,10 +216,19 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 import config from './config.js'
 import { pushGA } from './composables/useGA.js'
+import { learnMoreUrl, getActivityStatus, getForcedState, ctaTextMap } from './composables/useActivityStatus.js'
 
 const SELECT_DELAY = 600
 const SUBMIT_LOADING_DURATION = 1000
 const INTRO_HINT_DURATION = 2000
+
+// ===== 申請狀態（跟首頁共用時程設定）=====
+// 網址加 ?state=before|open|ended 可強制切換，並會帶到首頁連結上，讓兩頁狀態一致
+const activityStatus = getActivityStatus()
+const navCtaText = ctaTextMap[activityStatus]
+const forcedState = getForcedState()
+const homePageUrl = `./index.html?openExternalBrowser=1${forcedState ? `&state=${forcedState}` : ''}`
+const applyPageUrl = `${homePageUrl}#apply`
 
 const questions = config.quiz.questions
 const results = config.quiz.results
@@ -501,7 +512,7 @@ const downloadImg = async (img) => {
 }
 
 const goHome = () => {
-	window.location.href = './index.html?openExternalBrowser=1'
+	window.location.href = homePageUrl
 }
 
 const PRELOAD_TIMEOUT = 20000

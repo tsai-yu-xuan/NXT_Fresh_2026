@@ -595,13 +595,14 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Draggable } from 'gsap/Draggable'
 import { InertiaPlugin } from 'gsap/InertiaPlugin'
 import config from './config.js'
+import { schedule, learnMoreUrl, getActivityStatus, getForcedState, ctaTextMap } from './composables/useActivityStatus.js'
 
 gsap.registerPlugin(ScrollTrigger, Draggable, InertiaPlugin)
 
 const img = config.images.home
 const email = 'nxtfresh@saylingwen.org'
-const learnMoreUrl = 'https://nxtfresh.saylingwen.org/?utm_source=website&utm_medium=event&utm_campaign=26learnmore'
-const quizUrl = './quiz.html?openExternalBrowser=1'
+// 有 ?state= 強制狀態時一起帶到測驗頁，讓測驗頁導覽列按鈕狀態跟首頁一致
+const quizUrl = `./quiz.html?openExternalBrowser=1${getForcedState() ? `&state=${getForcedState()}` : ''}`
 const LINE_TAG_ID = '252c7ad0-6688-49a3-a2b0-6d43fa245ba4'
 
 // 使用者系統設定「減少動態效果」時，關閉大部分動畫
@@ -610,37 +611,17 @@ const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matc
 const canHover = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches
 
 // ====================================
-// 申請時程 / 活動狀態
+// 申請時程 / 活動狀態（設定在 composables/useActivityStatus.js，測驗頁共用）
 // ====================================
-// 春季班申請階段 2026/12/1 - 2027/1/13，每季開放時間異動時更新這裡
-const schedule = {
-	openAt: '2026/12/01 00:00:00',
-	closeAt: '2027/01/13 23:59:59',
-	openLabel: '2026/12/1(二)',
-	periodLabel: '2026/12/1(二)-2027/1/13(三)',
-	deadlineLabel: '2027/1/13(三)23:59'
-}
-
 // before：開放申請前 / open：開放申請中（顯示表單）/ ended：申請截止後
-const activityStatus = ref('before')
+// 網址加 ?state=before|open|ended 可強制切換（給企劃看各狀態）
+const activityStatus = ref(getActivityStatus())
 
-// 確認活動時間；網址加 ?state=before|open|ended 可強制切換（給企劃看各狀態）
-const checkTime = () => {
-	const forced = new URLSearchParams(window.location.search).get('state')
-	if (['before', 'open', 'ended'].includes(forced)) return forced
-
-	const nowTime = new Date()
-	if (nowTime < new Date(schedule.openAt)) return 'before'
-	if (nowTime <= new Date(schedule.closeAt)) return 'open'
-	return 'ended'
-}
-activityStatus.value = checkTime()
-
-const ctaText = computed(() => ({ before: '開啟申請提醒', open: '立即申請', ended: '前往計畫官網' })[activityStatus.value])
+const ctaText = computed(() => ctaTextMap[activityStatus.value])
 
 const googleCalendarUrl = (() => {
-	const title = encodeURIComponent('NXT Fresh人才培育計畫開放申請')
-	const details = encodeURIComponent('2026年NXT Fresh人才培育計畫已開放申請，立即點擊下方連結，踏出第一步，讓你職涯不繞路！\n免費申請 https://bigcc.cc/BWiox8')
+	const title = encodeURIComponent('NXT Fresh人才培育計畫（春季班）開放申請')
+	const details = encodeURIComponent('NXT Fresh人才培育計畫春季班已開放申請，立即點擊下方連結送出申請，踏出第一步，讓你職涯不繞路！\n傳送門： https://bigcc.cc/BWiox8')
 	return `https://www.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=20261201/20261202&details=${details}`
 })()
 
@@ -1163,8 +1144,10 @@ const holdBtn = ref(false)
 
 // 生日：年 / 月 / 日 三個下拉，選完組成 YYYY/MM/DD
 const birthday = reactive({ y: '', m: '', d: '' })
-const nowYear = new Date().getFullYear()
-const birthdayYears = Array.from({ length: nowYear - 15 - 1950 + 1 }, (_, i) => nowYear - 15 - i)
+// 年份固定 1990-2011（新到舊排列），開放資格年齡異動時改這兩個數字
+const BIRTH_YEAR_MIN = 1990
+const BIRTH_YEAR_MAX = 2011
+const birthdayYears = Array.from({ length: BIRTH_YEAR_MAX - BIRTH_YEAR_MIN + 1 }, (_, i) => BIRTH_YEAR_MAX - i)
 const birthdayMaxDay = computed(() => (birthday.y && birthday.m ? new Date(Number(birthday.y), Number(birthday.m), 0).getDate() : 31))
 const pad2 = (n) => String(n).padStart(2, '0')
 
