@@ -7,5 +7,5 @@ export function pushGA(data = {}) {
 		'image_id': data.image_id,
 		'image_name': data.image_name
 	})
-	console.log('[GA] 進站事件已推送', window.dataLayer[window.dataLayer.length - 1])
+	// console.log('[GA] 進站事件已推送', window.dataLayer[window.dataLayer.length - 1])
 }

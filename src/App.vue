@@ -1307,7 +1307,7 @@ const submitApply = async () => {
 	try {
 		window._lt('send', 'cv', { type: 'InitiateCheckOut' }, [LINE_TAG_ID])
 	} catch (error) {
-		console.error('LINE Tag 送出失敗:', error)
+		// console.error('LINE Tag 送出失敗:', error)
 	}
 	try {
 		const fromData = { ...form.value }
@@ -1332,11 +1332,11 @@ const submitApply = async () => {
 		}
 
 		// 實際送給後端的資料
-		console.log('[申請表單] 送出資料：', payload)
-		console.table(payload)
+		// console.log('[申請表單] 送出資料：', payload)
+		// console.table(payload)
 
 		const res = await axios.post(config.api.applyForm, payload)
-		console.log('[申請表單] 後端回應：', res.data)
+		// console.log('[申請表單] 後端回應：', res.data)
 
 		if (res.data.status == '200') {
 			try {
@@ -1351,7 +1351,7 @@ const submitApply = async () => {
 					[LINE_TAG_ID]
 				)
 			} catch (error) {
-				console.error('LINE Tag 送出失敗:', error)
+				// console.error('LINE Tag 送出失敗:', error)
 			}
 			try {
 				window.freecoins_cvq = [
@@ -1376,7 +1376,7 @@ const submitApply = async () => {
 				freecoinsScript.nonce = 'NXTFresh'
 				document.head.appendChild(freecoinsScript)
 			} catch (error) {
-				console.error('LINE Point Ads CV Tag 送出失敗:', error)
+				// console.error('LINE Point Ads CV Tag 送出失敗:', error)
 			}
 
 			showAlert('申請成功<br>感謝您的申請，並請留意信件！', resetForm)
@@ -1384,7 +1384,7 @@ const submitApply = async () => {
 			showAlert(res.data.message || '送出失敗，請稍後再試', resetForm)
 		}
 	} catch (error) {
-		console.error('送出申請失敗:', error)
+		// console.error('送出申請失敗:', error)
 		showAlert('送出失敗，請稍後再試', resetForm)
 	} finally {
 		holdBtn.value = false

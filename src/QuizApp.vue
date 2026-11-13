@@ -437,7 +437,7 @@ const copyLinkToClipboard = async (message) => {
 		await navigator.clipboard.writeText(getShareUrl())
 		window.alert(message)
 	} catch (error) {
-		console.error('複製連結失敗:', error)
+		// console.error('複製連結失敗:', error)
 	}
 	shareModalVisible.value = false
 }
@@ -487,7 +487,7 @@ const downloadImg = async (img) => {
 
 			URL.revokeObjectURL(blobUrl)
 		} catch (error) {
-			console.error('下載圖片失敗:', error)
+			// console.error('下載圖片失敗:', error)
 		}
 		return
 	}
@@ -525,7 +525,7 @@ const preloadImage = (src) =>
 			resolve({ src, ok: true })
 		}
 		img.onerror = () => {
-			console.warn(`[預載][圖片][失敗] ${src}`)
+			// console.warn(`[預載][圖片][失敗] ${src}`)
 			resolve({ src, ok: false })
 		}
 		img.src = src
@@ -541,7 +541,7 @@ const preloadVideo = (src) => {
 			return { src, ok: true }
 		})
 		.catch((error) => {
-			console.warn(`[預載][影片][失敗] ${src}`, error)
+			// console.warn(`[預載][影片][失敗] ${src}`, error)
 			return { src, ok: false }
 		})
 }
@@ -587,7 +587,7 @@ const preloadRestAssets = () => {
 		assetsReady.value = true
 
 		if (!results) {
-			console.warn(`[預載][背景][逾時] 超過 ${PRELOAD_TIMEOUT / 1000} 秒仍未全部完成，assetsReady 已強制設為 true，可能有影片還沒真的快取好`)
+			// console.warn(`[預載][背景][逾時] 超過 ${PRELOAD_TIMEOUT / 1000} 秒仍未全部完成，assetsReady 已強制設為 true，可能有影片還沒真的快取好`)
 			return
 		}
 
