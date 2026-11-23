@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 
 <head>
-    <meta name="build-version" content="2026.11.12-1449-fcd3a11">
+    <meta name="build-version" content="2026.11.23-1041-7d754c9">
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -118,15 +118,21 @@
     <!-- End Meta Pixel Code -->
 
     <!-- LINE Point Ads LP Tracking Code Start -->
+    <!-- app ID 與網域集中在這裡，送出表單的 CV 碼（App.vue）也讀 window.NXT_FREECOINS；
+         網域依目前網址自動切換：測試站 horyuken.com／正式站 saylingwen.org -->
     <script type="text/javascript" nonce="NXTFresh">
-        var freecoins_lpq = [{ "app": "FREECOINS_51808", "expires": 2592000, "domain": ".saylingwen.org" }];
+        window.NXT_FREECOINS = {
+            app: 'FREECOINS_52629',
+            domain: /(^|\.)horyuken\.com$/.test(window.location.hostname) ? '.horyuken.com' : '.saylingwen.org'
+        };
+        var freecoins_lpq = [{ "app": window.NXT_FREECOINS.app, "expires": 2592000, "domain": window.NXT_FREECOINS.domain }];
     </script>
     <script src="https://point-ads.line-apps.com/lfc5.js" async nonce="NXTFresh"></script>
     <!-- LINE Point Ads LP Tracking Code End -->
 
-  <script type="module" crossorigin src="./assets/main-hyL33SXi.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/useGA-Cr7EdBTl.js">
-  <link rel="stylesheet" crossorigin href="./assets/main-B60Y66O7.css">
+  <script type="module" crossorigin src="./assets/main-DBmvatvb.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/useGA-CHk8Nb9T.js">
+  <link rel="stylesheet" crossorigin href="./assets/main-C8iJSEU-.css">
 </head>
 
 <body>

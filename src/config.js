@@ -19,6 +19,9 @@ export default {
 			kvTitleMask: 'assets/images/v2/kv-title-mask.svg',
 			kvPerson: 'assets/images/v2/kv-person.webp',
 			kvPersonMobile: 'assets/images/v2/kv-person-m.webp',
+			// 主視覺背景（取代原本的 WebGL canvas）
+			kvBg: 'assets/images/v2/kv-bg.webp',
+			kvBgMobile: 'assets/images/v2/kv-bg-m.webp',
 			ctaBar: 'assets/images/v2/cta-bar.webp',
 			ctaArrow: 'assets/images/v2/cta-arrow.webp',
 			ctaHand: 'assets/images/v2/cta-hand.webp',

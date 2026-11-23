@@ -12,7 +12,7 @@
 	<main>
 		<!-- 主視覺區：每層 layer（滑鼠視差）> drift（捲動視差）> float（漂浮）> pop（進場） -->
 		<section ref="kvEl" class="kv" :class="`is-${activityStatus}`" aria-label="職場生存模擬考 2026 NXT Fresh 人才培育計畫">
-			<canvas v-show="!kvCanvasFailed" ref="kvCanvas" class="kv-canvas" aria-hidden="true"></canvas>
+			<div class="kv-bg" :style="kvBgStyle" aria-hidden="true"></div>
 			<div class="stage">
 				<div class="layer l-person" data-depth="0.3">
 					<div class="drift">
@@ -600,6 +600,14 @@ import { schedule, learnMoreUrl, getActivityStatus, getForcedState, ctaTextMap }
 gsap.registerPlugin(ScrollTrigger, Draggable, InertiaPlugin)
 
 const img = config.images.home
+
+// CSS 變數裡的 url() 會以「使用它的 CSS 檔」位置解析（dist/assets/），相對路徑會變成 assets/assets/…
+// 所以先轉成以頁面為基準的絕對網址
+const absUrl = (path) => new URL(path, document.baseURI).href
+const kvBgStyle = {
+	'--kv-bg': `url("${absUrl(img.kvBg)}")`,
+	'--kv-bg-m': `url("${absUrl(img.kvBgMobile)}")`
+}
 const email = 'nxtfresh@saylingwen.org'
 // 有 ?state= 強制狀態時一起帶到測驗頁，讓測驗頁導覽列按鈕狀態跟首頁一致
 const quizUrl = `./quiz.html?openExternalBrowser=1${getForcedState() ? `&state=${getForcedState()}` : ''}`
@@ -830,172 +838,6 @@ const bubbleLabelStyle = (id) => {
 const bubbleIconStyle = (id) => {
 	const i = BUBBLE_LAYOUTS[id].icon
 	return { left: `calc(var(--k) * ${i.x})`, top: `calc(var(--k) * ${i.y})`, width: `calc(var(--k) * ${i.w})`, height: `calc(var(--k) * ${i.h})` }
-}
-
-// ====================================
-// 主視覺：WebGL 流動漸層背景（跟著滑鼠微微發光；不支援時隱藏，露出 CSS 漸層）
-// ====================================
-const kvCanvas = ref(null)
-const kvCanvasFailed = ref(false)
-const kvPointer = { x: 0.62, y: 0.55, active: false }
-
-const KV_VERT = `
-attribute vec2 aPos;
-void main(){ gl_Position = vec4(aPos, 0.0, 1.0); }`
-
-const KV_FRAG = `
-precision mediump float;
-uniform vec2 uRes;
-uniform float uTime;
-uniform vec2 uMouse;
-float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
-float noise(vec2 p){
-  vec2 i = floor(p), f = fract(p);
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
-}
-float fbm(vec2 p){
-  float v = 0.0, a = 0.5;
-  for(int i = 0; i < 5; i++){ v += a * noise(p); p = p * 2.02 + vec2(1.7, 9.2); a *= 0.5; }
-  return v;
-}
-void main(){
-  vec2 uv = gl_FragCoord.xy / uRes;
-  float asp = uRes.x / uRes.y;
-  vec2 p = vec2(uv.x * asp, uv.y);
-  float t = uTime;
-  vec2 q = vec2(fbm(p * 1.1 + vec2(0.0, t * 0.035)), fbm(p * 1.1 + vec2(5.2, -t * 0.03)));
-  float n = fbm(p * 1.5 + q * 1.5 + vec2(t * 0.025, 0.0));
-
-  /* 色彩取自原 KV：左上淡奶油黃、中段金黃、右側與下方飽和橘 */
-  vec3 light = vec3(0.980, 0.862, 0.610);
-  vec3 mid   = vec3(0.984, 0.792, 0.365);
-  vec3 deep  = vec3(0.945, 0.655, 0.118);
-  vec3 cream = vec3(0.965, 0.855, 0.620);
-  vec3 base  = vec3(0.957, 0.682, 0.157);
-
-  vec3 haze  = vec3(0.953, 0.835, 0.600);
-
-  float tl = distance(uv, vec2(0.0, 1.0));
-  vec3 col = mix(light, mid, smoothstep(0.08, 0.72, tl));
-  float dpt = clamp(smoothstep(0.4, 0.95, uv.x) * 0.95 + smoothstep(0.5, 0.0, uv.y) * 0.5, 0.0, 1.0);
-  col = mix(col, deep, dpt);
-  col = mix(col, cream, smoothstep(0.58, 0.86, n) * 0.35 * (1.0 - 0.5 * uv.x));
-  col = mix(col, deep, smoothstep(0.62, 0.9, 1.0 - n) * 0.15);
-  /* 上方的奶油色霧光（原 KV 右上偏淡褐） */
-  col = mix(col, haze, smoothstep(0.35, 0.95, uv.y) * smoothstep(0.1, 0.6, uv.x) * 0.6);
-
-  float k = uv.x * 0.9 - uv.y * 0.55;
-  float band = exp(-pow(k - (0.12 + 0.2 * sin(t * 0.11)), 2.0) * 28.0);
-  col += vec3(0.98, 0.86, 0.62) * band * 0.04;
-
-  vec2 mp = vec2(uMouse.x * asp, uMouse.y);
-  float d = distance(p, mp);
-  col += vec3(0.96, 0.8, 0.55) * exp(-d * d * 4.5) * 0.05;
-
-  col = mix(col, base, smoothstep(0.2, 0.0, uv.y));
-  col += (hash(gl_FragCoord.xy + fract(t)) - 0.5) / 255.0;
-  gl_FragColor = vec4(col, 1.0);
-}`
-
-let kvStopBackground = () => {}
-
-const initKvBackground = () => {
-	const canvas = kvCanvas.value
-	let gl, uRes, uTime, uMouse, io
-	let raf = 0
-	let inView = true
-	let pageVisible = true
-	const mouse = { x: 0.62, y: 0.55 }
-	const t0 = performance.now()
-
-	const compile = (type, src) => {
-		const sh = gl.createShader(type)
-		gl.shaderSource(sh, src)
-		gl.compileShader(sh)
-		if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh))
-		return sh
-	}
-
-	try {
-		gl = canvas.getContext('webgl', { antialias: false, alpha: false, premultipliedAlpha: false, powerPreference: 'low-power' })
-		if (!gl) throw new Error('no webgl')
-		const program = gl.createProgram()
-		gl.attachShader(program, compile(gl.VERTEX_SHADER, KV_VERT))
-		gl.attachShader(program, compile(gl.FRAGMENT_SHADER, KV_FRAG))
-		gl.linkProgram(program)
-		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program))
-		gl.useProgram(program)
-		gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer())
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW)
-		const aPos = gl.getAttribLocation(program, 'aPos')
-		gl.enableVertexAttribArray(aPos)
-		gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0)
-		uRes = gl.getUniformLocation(program, 'uRes')
-		uTime = gl.getUniformLocation(program, 'uTime')
-		uMouse = gl.getUniformLocation(program, 'uMouse')
-	} catch {
-		kvCanvasFailed.value = true
-		return
-	}
-
-	// 以半解析度渲染，省效能
-	const resize = () => {
-		const scale = 0.5 * Math.min(window.devicePixelRatio || 1, 2)
-		const w = Math.max(1, Math.round(canvas.clientWidth * scale))
-		const hgt = Math.max(1, Math.round(canvas.clientHeight * scale))
-		if (canvas.width !== w || canvas.height !== hgt) {
-			canvas.width = w
-			canvas.height = hgt
-			gl.viewport(0, 0, w, hgt)
-		}
-	}
-
-	const loop = () => {
-		if (!raf && inView && pageVisible) raf = requestAnimationFrame(frame)
-	}
-
-	const frame = (now) => {
-		raf = 0
-		if (!gl) return
-		resize()
-		const t = (now - t0) / 1000
-		// 沒有滑鼠時，光點自己慢慢飄
-		const tx = kvPointer.active ? kvPointer.x : 0.6 + 0.18 * Math.sin(t * 0.17)
-		const ty = kvPointer.active ? kvPointer.y : 0.55 + 0.14 * Math.cos(t * 0.13)
-		mouse.x += (tx - mouse.x) * 0.045
-		mouse.y += (ty - mouse.y) * 0.045
-		gl.uniform2f(uRes, canvas.width, canvas.height)
-		gl.uniform1f(uTime, reducedMotion ? 12 : t)
-		gl.uniform2f(uMouse, mouse.x, mouse.y)
-		gl.drawArrays(gl.TRIANGLES, 0, 3)
-		if (!reducedMotion) loop()
-	}
-
-	const onVisibility = () => {
-		pageVisible = document.visibilityState === 'visible'
-		loop()
-	}
-
-	// 離開畫面或分頁切走時暫停
-	io = new IntersectionObserver(([entry]) => {
-		inView = entry.isIntersecting
-		loop()
-	})
-	io.observe(canvas)
-	document.addEventListener('visibilitychange', onVisibility)
-	canvas.addEventListener('webglcontextlost', (e) => {
-		e.preventDefault()
-		kvCanvasFailed.value = true
-		gl = null
-	})
-	loop()
-
-	kvStopBackground = () => {
-		raf && cancelAnimationFrame(raf)
-		io.disconnect()
-		document.removeEventListener('visibilitychange', onVisibility)
-	}
 }
 
 // ====================================
@@ -1354,10 +1196,12 @@ const submitApply = async () => {
 				// console.error('LINE Tag 送出失敗:', error)
 			}
 			try {
+				// app ID／網域設定在 index.html 的 window.NXT_FREECOINS（跟 LP 碼共用）
+				const freecoinsConfig = window.NXT_FREECOINS || { app: 'FREECOINS_52629', domain: '.saylingwen.org' }
 				window.freecoins_cvq = [
 					{
-						app: 'FREECOINS_51808',
-						domain: '.saylingwen.org',
+						app: freecoinsConfig.app,
+						domain: freecoinsConfig.domain,
 						cv: [
 							{
 								action: 'REGISTRATION',
@@ -1444,7 +1288,7 @@ const initHero = (cleanups) => {
 
 	const intro = gsap.timeline({ defaults: { ease: 'power3.out' } })
 	intro
-		.from(q('.kv-canvas'), { autoAlpha: 0, duration: 1.2 }, 0)
+		.from(q('.kv-bg'), { autoAlpha: 0, duration: 1.2 }, 0)
 		.from(q('.l-person .pop'), { autoAlpha: 0, y: 70 * unit, duration: 1.1 }, 0)
 		.from(q('.l-title .pop'), { autoAlpha: 0, x: -60 * unit, skewX: -6, duration: 0.9 }, 0.15)
 		.from(q('.kv-sub'), { autoAlpha: 0, y: 16 * unit, duration: 0.6 }, 0.45)
@@ -1479,7 +1323,7 @@ const initHero = (cleanups) => {
 		defaults: { ease: 'none', duration: 1 },
 		scrollTrigger: { trigger: kvEl.value, start: 'top top', end: 'bottom top', scrub: 0.5, invalidateOnRefresh: true }
 	})
-	scroll.to(q('.kv-canvas'), { y: () => kvH() * 0.3 * factor }, 0)
+	scroll.to(q('.kv-bg'), { y: () => kvH() * 0.3 * factor }, 0)
 	Object.entries(scrollDepth).forEach(([key, d]) => {
 		const els = q(`.l-${key} .drift`)
 		if (els.length) scroll.to(els, { y: () => kvH() * d * factor }, 0)
@@ -1504,9 +1348,6 @@ const initHero = (cleanups) => {
 		const rect = kvEl.value.getBoundingClientRect()
 		const fx = (e.clientX - rect.left) / rect.width
 		const fy = (e.clientY - rect.top) / rect.height
-		kvPointer.x = fx
-		kvPointer.y = 1 - fy
-		kvPointer.active = true
 		const nx = fx * 2 - 1
 		const ny = fy * 2 - 1
 		layers.forEach((l) => {
@@ -1519,7 +1360,6 @@ const initHero = (cleanups) => {
 		})
 	}
 	const onLeave = () => {
-		kvPointer.active = false
 		layers.forEach((l) => {
 			l.x(0)
 			l.y(0)
@@ -1904,7 +1744,6 @@ onMounted(() => {
 	Object.values(bubbleRoots).forEach((el) => el && bubbleObserver.observe(el))
 	document.fonts?.ready?.then(() => nextTick(() => bubbles.forEach(({ id }) => fitBubbleText(id))))
 
-	initKvBackground()
 	autoplayOn.value = !reducedMotion
 
 	gsapCtx = gsap.context(() => {
@@ -1932,7 +1771,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
 	document.removeEventListener('click', handleOutsideClick)
 	bubbleObserver && bubbleObserver.disconnect()
-	kvStopBackground()
 	clearTimeout(carouselResizeTimer)
 	cleanups.forEach((fn) => fn())
 	carouselDraggable && carouselDraggable.kill()
@@ -2262,16 +2100,21 @@ a {
 	}
 }
 
-/* ===== 主視覺背景 ===== */
-.kv-canvas {
+/* ===== 主視覺背景 =====
+   原本是 WebGL 流動漸層，部分 Android GPU 精度不足會整片變黑，改成同一個 shader 算好的靜態圖。
+   用 100% 100% 撐滿（跟原 canvas 一樣隨區塊比例伸縮），圖還沒載入或載入失敗時會露出 .kv 的 CSS 漸層 */
+.kv-bg {
 	position: absolute;
 	top: 0;
 	right: 0;
 	bottom: 0;
 	left: 0;
-	width: 100%;
-	height: 100%;
-	display: block;
+	background: var(--kv-bg) center / 100% 100% no-repeat;
+}
+@media (max-width: 1023px) {
+	.kv-bg {
+		background-image: var(--kv-bg-m);
+	}
 }
 
 /* ===== 主視覺問句泡泡 ===== */
